@@ -1,0 +1,17 @@
+[
+{
+  "logoFile": "assets/bamsgrave/textures/gui/logo.png",
+  "name": "BaM's Grave",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "modid": "BaMsGRAVE",
+  "credits": "Inspired by the Bukkit-plugin 'Gravestone' by Ernest Millan",
+  "authors": [ "MrIbby", "DerBaM" ],
+  "url": "http://curse.com/project/78876",
+  "description": "Instead of dropping your inventory on death, a grave will be dug in which a buried chest with your inventory and experience lies. The grave will be inscribed with your name and time of death. This helps to keep your things from getting lost or despawning.",
+  "updateUrl": "",
+  "parent": "",
+  "screenshots": [],
+  "dependencies": ["FML", "Forge"]
+}
+]
