@@ -5,11 +5,11 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = BaMsGRAVE.MOD_ID, name = "BaM's Grave", version = BaMsGRAVE.VERSION)
-public class BaMsGRAVE {
+@Mod(modid = BamGrave.MOD_ID, name = "BaM's Grave", version = BamGrave.VERSION)
+public class BamGrave {
     public static final String MOD_ID = "BaMsGRAVE";
     public static final String VERSION = "@VERSION@";
-    public static boolean gravesForCreative;
+    public static boolean gravesForCreative, storeXp;
     public static int chestsNeededToMakeGrave;
 
     @Mod.EventHandler
@@ -18,7 +18,9 @@ public class BaMsGRAVE {
         config.load();
         gravesForCreative = config.get("general", "GravesForCreativeMode", false, "Do players in creative mode make graves?").getBoolean(false);
         chestsNeededToMakeGrave = config.get("general", "ChestsNeededToMakeGrave", 2, "How many chests does a player need to make a grave?").getInt(2);
-        MinecraftForge.EVENT_BUS.register(new GraveEventHandler());
+        storeXp = config.get("general", "StoreXP", true, "Is XP stored in the player's grave?").getBoolean(false);
         config.save();
+
+        MinecraftForge.EVENT_BUS.register(new GraveEventHandler());
     }
 }

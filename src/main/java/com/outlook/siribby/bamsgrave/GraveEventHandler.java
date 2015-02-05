@@ -16,7 +16,7 @@ public class GraveEventHandler {
             boolean dontBreak = true;
             while ((!digGrave) && (dontBreak)) {
                 if (!player.capabilities.isCreativeMode) {
-                    int chestsNeeded = BaMsGRAVE.chestsNeededToMakeGrave;
+                    int chestsNeeded = BamGrave.chestsNeededToMakeGrave;
                     if (chestsNeeded > 0) {
                         int numberOfChests = 0;
                         ItemStack[] inventory = player.inventory.mainInventory;
@@ -45,7 +45,7 @@ public class GraveEventHandler {
                     } else {
                         digGrave = true;
                     }
-                } else if (BaMsGRAVE.gravesForCreative) {
+                } else if (BamGrave.gravesForCreative) {
                     digGrave = true;
                 } else {
                     dontBreak = false;

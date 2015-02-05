@@ -36,85 +36,6 @@ public class GraveDigger {
         return blockingBlocks;
     }
 
-    private static int getXP(EntityPlayerMP player) {
-        int xp = 0;
-        int level = player.experienceLevel - 1;
-
-        if ((player.experience < 0.0F) || (player.experience >= 1.0F)) {
-            FMLLog.warning("[%s] Incorrect value in %s's XP bar: %d", BaMsGRAVE.MOD_ID, player.getDisplayName(), player.experience);
-        } else if (player.experienceLevel < 15) {
-            xp += (int) (player.experience * 17.0F + 0.5F);
-        } else if (player.experienceLevel < 30) {
-            xp += (int) (player.experience * (17 + (player.experienceLevel - 15) * 3) + 0.5F);
-        } else {
-            xp += (int) (player.experience * (62 + (player.experienceLevel - 30) * 7) + 0.5F);
-        }
-
-        while (level >= 0) {
-            if (level < 15) {
-                xp += 17;
-            } else if (level < 30) {
-                xp += 17 + (level - 15) * 3;
-            } else {
-                xp += 62 + (level - 30) * 7;
-            }
-
-            level--;
-        }
-
-        return xp;
-    }
-
-    private static void fillCoffin(EntityPlayerMP player, TileEntityChest coffin1, TileEntityChest coffin2) {
-        if (coffin1 == null || coffin2 == null) {
-            return;
-        }
-
-        IInventory baublesInv = BaublesApi.getBaubles(player);
-        if (baublesInv != null) {
-            for (int i = 0; i < baublesInv.getSizeInventory(); i++) {
-                coffin2.setInventorySlotContents(i + 13, baublesInv.getStackInSlot(i));
-
-                baublesInv.setInventorySlotContents(i, null);
-            }
-        }
-
-        for (int i = 0; i < player.inventory.mainInventory.length; i++) {
-            if (i < 9) {
-                coffin2.setInventorySlotContents(i, player.inventory.mainInventory[i]);
-            } else {
-                coffin1.setInventorySlotContents(i - 9, player.inventory.mainInventory[i]);
-            }
-
-            player.inventory.mainInventory[i] = null;
-        }
-
-        for (int i = 0; i < player.inventory.armorInventory.length; i++) {
-            coffin2.setInventorySlotContents(i + 9, player.inventory.armorInventory[i]);
-
-            player.inventory.armorInventory[i] = null;
-        }
-
-        int xp = getXP(player);
-
-        int flasks = xp / 11;
-        int slot = 26;
-        int slot1 = baublesInv != null ? 16 : 14;
-
-        while (flasks > 0 && slot > slot1) {
-            int stack_size = flasks > 64 ? 64 : flasks;
-
-            coffin2.setInventorySlotContents(slot, new ItemStack(Items.experience_bottle, stack_size));
-
-            flasks -= 64;
-            slot--;
-        }
-
-        player.experienceLevel = 0;
-        player.experienceTotal = 0;
-        player.experience = 0.0F;
-    }
-
     private static void convertGraveGround(World world, BlockPos pos) {
         Block block = world.getBlockState(pos).getBlock();
         Block coverBlock = null;
@@ -206,7 +127,82 @@ public class GraveDigger {
         TileEntityChest coffinA = (TileEntityChest) player.worldObj.getTileEntity(grave.coffin1);
         TileEntityChest coffinB = (TileEntityChest) player.worldObj.getTileEntity(grave.coffin2);
 
-        fillCoffin(player, coffinA, coffinB);
+        /* ---- fillCoffin START ---- */
+        if (coffinA == null || coffinB == null) {
+            return;
+        }
+
+        IInventory baublesInv = BaublesApi.getBaubles(player);
+        if (baublesInv != null) {
+            for (int i = 0; i < baublesInv.getSizeInventory(); i++) {
+                coffinB.setInventorySlotContents(i + 13, baublesInv.getStackInSlot(i));
+
+                baublesInv.setInventorySlotContents(i, null);
+            }
+        }
+
+        for (int i = 0; i < player.inventory.mainInventory.length; i++) {
+            if (i < 9) {
+                coffinB.setInventorySlotContents(i, player.inventory.mainInventory[i]);
+            } else {
+                coffinA.setInventorySlotContents(i - 9, player.inventory.mainInventory[i]);
+            }
+
+            player.inventory.mainInventory[i] = null;
+        }
+
+        for (int i = 0; i < player.inventory.armorInventory.length; i++) {
+            coffinB.setInventorySlotContents(i + 9, player.inventory.armorInventory[i]);
+
+            player.inventory.armorInventory[i] = null;
+        }
+
+        if (BamGrave.storeXp) {
+            // -- getXP START -- //
+            int xp = 0;
+            int level = player.experienceLevel - 1;
+
+            if ((player.experience < 0.0F) || (player.experience >= 1.0F)) {
+                FMLLog.warning("[%s] Incorrect value in %s's XP bar: %f", BamGrave.MOD_ID, player.getDisplayName(), player.experience);
+            } else if (player.experienceLevel < 15) {
+                xp += (int) (player.experience * 17.0F + 0.5F);
+            } else if (player.experienceLevel < 30) {
+                xp += (int) (player.experience * (17 + (player.experienceLevel - 15) * 3) + 0.5F);
+            } else {
+                xp += (int) (player.experience * (62 + (player.experienceLevel - 30) * 7) + 0.5F);
+            }
+
+            while (level >= 0) {
+                if (level < 15) {
+                    xp += 17;
+                } else if (level < 30) {
+                    xp += 17 + (level - 15) * 3;
+                } else {
+                    xp += 62 + (level - 30) * 7;
+                }
+
+                level--;
+            }
+            // -- getXP END -- //
+
+            int flasks = xp / 11;
+            int slot = 26;
+            int slot1 = baublesInv != null ? 16 : 14;
+
+            while (flasks > 0 && slot > slot1) {
+                int stack_size = flasks > 64 ? 64 : flasks;
+
+                coffinB.setInventorySlotContents(slot, new ItemStack(Items.experience_bottle, stack_size));
+
+                flasks -= 64;
+                slot--;
+            }
+
+            player.experienceLevel = 0;
+            player.experienceTotal = 0;
+            player.experience = 0.0F;
+        }
+        /* ---- fillCoffin END ---- */
 
         convertGraveGround(player.worldObj, grave.ground1);
         convertGraveGround(player.worldObj, grave.ground2);
